@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety catch-all: reject everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Core Security Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Restricts write actions strictly to the verified account of Faiqa Shahzad
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email == "faiqashahzad269@gmail.com";
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // --- Entity Specific Security Rules ---
+
+    // Public catalog & content collections:
+    // Unrestricted read access for all visitors, but modification rights are gated behind isAdmin()
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(productId);
+    }
+
+    match /paintings/{paintingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(paintingId);
+    }
+
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(testimonialId);
+    }
+
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(blogId);
+    }
+
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(faqId);
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() || (settingId == 'admin_credentials' && !exists(/databases/$(database)/documents/settings/admin_credentials));
+    }
+
+    // Form Submissions:
+    // Open create permissions with strict schema size and initial status validations to avoid updates-gaps/spamming.
+    // Read and management permissions are restricted to Faiqa Shahzad's verified admin account.
+    match /contact_messages/{messageId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isValidId(messageId) && 
+                    incoming().keys().hasAll(['id', 'name', 'email', 'subject', 'message', 'date', 'status']) && 
+                    incoming().keys().size() == 7 && 
+                    incoming().status == 'unread' && 
+                    incoming().name is string && incoming().name.size() <= 100 &&
+                    incoming().email is string && incoming().email.size() <= 150 &&
+                    incoming().message is string && incoming().message.size() <= 2000;
+    }
+
+    match /custom_orders/{orderId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isValidId(orderId) && 
+                    incoming().keys().hasAll(['id', 'name', 'whatsapp', 'type', 'details', 'date', 'status']) && 
+                    incoming().keys().size() == 7 && 
+                    incoming().status == 'pending' &&
+                    incoming().type in ['crochet', 'painting'] &&
+                    incoming().name is string && incoming().name.size() <= 100 &&
+                    incoming().details is string && incoming().details.size() <= 2000;
+    }
+
+    match /subscribers/{subscriberId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isValidId(subscriberId) && 
+                    incoming().keys().hasAll(['id', 'email', 'date']) && 
+                    incoming().keys().size() == 3 &&
+                    incoming().email is string && incoming().email.size() <= 150;
+    }
+  }
+}

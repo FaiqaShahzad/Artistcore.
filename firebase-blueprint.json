@@ -1,0 +1,189 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Crochet Product model",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "materials": { "type": "array" },
+        "sizes": { "type": "array" }
+      },
+      "required": ["id", "name", "price", "category", "description", "image", "featured", "materials", "sizes"]
+    },
+    "Painting": {
+      "title": "Painting",
+      "description": "Painting model",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "medium": { "type": "string" },
+        "size": { "type": "string" }
+      },
+      "required": ["id", "title", "price", "category", "description", "image", "featured", "medium", "size"]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Customer testimonial model",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "review": { "type": "string" },
+        "rating": { "type": "number" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "name", "role", "review", "rating", "date"]
+    },
+    "BlogPost": {
+      "title": "BlogPost",
+      "description": "Blog post model",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "content": { "type": "string" },
+        "image": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string" },
+        "readTime": { "type": "string" }
+      },
+      "required": ["id", "title", "summary", "content", "image", "date", "author", "readTime"]
+    },
+    "FAQ": {
+      "title": "FAQ",
+      "description": "Frequently Asked Questions model",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["id", "question", "answer", "category"]
+    },
+    "ContactInfo": {
+      "title": "ContactInfo",
+      "description": "Contact info configuration",
+      "type": "object",
+      "properties": {
+        "whatsapp": { "type": "string" },
+        "instagram": { "type": "string" },
+        "tiktok": { "type": "string" },
+        "location": { "type": "string" },
+        "address": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "required": ["whatsapp", "instagram", "tiktok", "location", "address", "email"]
+    },
+    "HomepageContent": {
+      "title": "HomepageContent",
+      "description": "Homepage dynamic copy",
+      "type": "object",
+      "properties": {
+        "heroTitle": { "type": "string" },
+        "heroSubtitle": { "type": "string" },
+        "storyTitle": { "type": "string" },
+        "storyText": { "type": "string" }
+      },
+      "required": ["heroTitle", "heroSubtitle", "storyTitle", "storyText"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Contact form submissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["unread", "read", "replied"] }
+      },
+      "required": ["id", "name", "email", "subject", "message", "date", "status"]
+    },
+    "CustomOrderRequest": {
+      "title": "CustomOrderRequest",
+      "description": "Custom crochet or painting order requests",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "type": { "type": "string", "enum": ["crochet", "painting"] },
+        "details": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "completed"] }
+      },
+      "required": ["id", "name", "whatsapp", "type", "details", "date", "status"]
+    },
+    "NewsletterSubscriber": {
+      "title": "NewsletterSubscriber",
+      "description": "Newsletter subscriber list",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "email", "date"]
+    }
+  },
+  "firestore": {
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Crochet boutique product catalog"
+    },
+    "paintings/{paintingId}": {
+      "schema": "Painting",
+      "description": "Fine art and painting collection"
+    },
+    "testimonials/{testimonialId}": {
+      "schema": "Testimonial",
+      "description": "Customer testimonial submissions"
+    },
+    "blogs/{blogId}": {
+      "schema": "BlogPost",
+      "description": "Artist stories and blog posts"
+    },
+    "faqs/{faqId}": {
+      "schema": "FAQ",
+      "description": "Frequently Asked Questions"
+    },
+    "settings/contact_info": {
+      "schema": "ContactInfo",
+      "description": "Global contact coordinates configuration document"
+    },
+    "settings/homepage_content": {
+      "schema": "HomepageContent",
+      "description": "Homepage dynamic typography copy document"
+    },
+    "contact_messages/{messageId}": {
+      "schema": "ContactMessage",
+      "description": "Contact form submissions for administration"
+    },
+    "custom_orders/{orderId}": {
+      "schema": "CustomOrderRequest",
+      "description": "Custom order commissions"
+    },
+    "subscribers/{subscriberId}": {
+      "schema": "NewsletterSubscriber",
+      "description": "Mailing list subscribers"
+    }
+  }
+}

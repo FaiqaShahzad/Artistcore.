@@ -1,0 +1,6 @@
+{
+  "name": "Artistcore Crochet & Fine Art Website",
+  "description": "A premium luxury boutique website and CMS for ARTISTCORE, featuring handcrafted crochet creations and fine paintings in Lahore, Pakistan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
