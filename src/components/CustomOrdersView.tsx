@@ -44,7 +44,15 @@ export const CustomOrdersView: React.FC = () => {
     const specsText = `%0D%0A- Order ID: *${submittedId}*%0D%0A- Name: ${name}%0D%0A- Sizing: ${sizePreference || 'Standard'}%0D%0A- Colors: ${colorScheme || 'Natural/Standard'}%0D%0A- Brief: ${details}`;
     const text = `Assalam-o-Alaikum Artistcore! I have successfully submitted a custom commission brief on your boutique website:%0D%0A${specsText}%0D%0A%0D%0APlease verify my booking and provide me the JazzCash/Easypaisa accounts or Bank details so I can transfer the 50% advance deposit. JazakAllah!`;
     const whatsappNum = contactInfo.whatsapp.replace(/[^0-9]/g, '');
-    window.open(`https://wa.me/${whatsappNum}?text=${text}`, '_blank');
+    const url = `https://wa.me/${whatsappNum}?text=${text}`;
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleResetForm = () => {

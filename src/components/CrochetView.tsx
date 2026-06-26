@@ -81,7 +81,15 @@ export const CrochetView: React.FC = () => {
     const text = `Assalam-o-Alaikum Artistcore! I would like to order/inquire about the handmade crochet product:%0D%0A%0D%0A*${product.name}*%0D%0APrice: PKR ${product.price.toLocaleString()}${specsText}%0D%0AQuantity: ${quantity}%0D%0APlease guide me on the 50% advance payment details.`;
     
     const whatsappNumber = contactInfo.whatsapp.replace(/[^0-9]/g, '');
-    window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
+    const url = `https://wa.me/${whatsappNumber}?text=${text}`;
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

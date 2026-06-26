@@ -93,6 +93,8 @@ export const ContactView: React.FC = () => {
                     <p className="text-brand-gray mt-1">{contactInfo.email}</p>
                     <a
                       href={`mailto:${contactInfo.email}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-[10px] tracking-widest uppercase font-bold text-brand-gold hover:text-brand-black mt-1.5 inline-block transition-colors"
                     >
                       Draft Email →
@@ -131,6 +133,8 @@ export const ContactView: React.FC = () => {
               <div className="pt-4">
                 <a
                   href={`tel:${contactInfo.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full text-center border border-brand-black hover:bg-brand-black hover:text-brand-white text-brand-black transition-all font-sans text-[10px] tracking-widest uppercase font-bold py-3.5 rounded flex items-center justify-center gap-2 shadow-inner"
                 >
                   <Phone size={12} /> Call Direct Line

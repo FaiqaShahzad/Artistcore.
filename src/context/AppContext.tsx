@@ -386,8 +386,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             await setDoc(doc(db, 'subscribers', s.id), s);
           }
         }
-      } catch (err) {
-        console.error("Admin seeding check error: ", err);
+      } catch (err: any) {
+        if (err?.message?.includes('permission') || err?.code === 'permission-denied') {
+          console.warn("Admin seeding deferred: awaiting complete Firebase authorization check.", err);
+        } else {
+          console.error("Admin seeding check error: ", err);
+        }
       }
     };
 
@@ -398,6 +402,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       snapshot.forEach(docSnap => items.push(docSnap.data() as ContactMessage));
       items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setContactMessagesState(items);
+    }, (error) => {
+      console.warn("Contact messages snapshot subscription warning:", error);
     });
 
     const unsubOrders = onSnapshot(collection(db, 'custom_orders'), (snapshot) => {
@@ -405,12 +411,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       snapshot.forEach(docSnap => items.push(docSnap.data() as CustomOrderRequest));
       items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setCustomOrdersState(items);
+    }, (error) => {
+      console.warn("Custom orders snapshot subscription warning:", error);
     });
 
     const unsubSubscribers = onSnapshot(collection(db, 'subscribers'), (snapshot) => {
       const items: NewsletterSubscriber[] = [];
       snapshot.forEach(docSnap => items.push(docSnap.data() as NewsletterSubscriber));
       setSubscribersState(items);
+    }, (error) => {
+      console.warn("Subscribers snapshot subscription warning:", error);
     });
 
     return () => {

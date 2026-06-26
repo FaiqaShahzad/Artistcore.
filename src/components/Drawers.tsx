@@ -37,8 +37,15 @@ export const CartDrawer: React.FC<DrawerProps> = ({ isOpen, onClose }) => {
     
     const message = `Assalam-o-Alaikum Artistcore! I am ready to finalize my premium cart checkout order via your Lahore boutique website:%0D%0A%0D%0A${itemsText}${totalText}${clientText}%0D%0A%0D%0APlease provide your active JazzCash / Easypaisa payment accounts. JazakAllah!`;
     const whatsappNum = contactInfo.whatsapp.replace(/[^0-9]/g, '');
+    const url = `https://wa.me/${whatsappNum}?text=${message}`;
     
-    window.open(`https://wa.me/${whatsappNum}?text=${message}`, '_blank');
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleCloseReset = () => {

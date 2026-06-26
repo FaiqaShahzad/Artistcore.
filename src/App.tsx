@@ -110,6 +110,8 @@ const AppContent: React.FC = () => {
         <a
           id="floating-call-button"
           href={`tel:${contactInfo.whatsapp}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="h-12 w-12 bg-brand-gold text-brand-black hover:bg-brand-white flex items-center justify-center rounded-full shadow-2xl border border-brand-gold transition-all duration-300 hover:scale-105"
           title="Call Direct Boutique Line"
         >

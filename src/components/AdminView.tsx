@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Product, Painting, BlogPost, FAQ, Testimonial } from '../types';
 import { 
@@ -58,6 +58,60 @@ export const AdminView: React.FC = () => {
   const [changePasswordError, setChangePasswordError] = useState('');
   const [changePasswordSuccess, setChangePasswordSuccess] = useState('');
 
+  // Handle redirect login result on mount (crucial for mobile phones)
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const { getRedirectResult } = await import('firebase/auth');
+        const { auth } = await import('../lib/firebase');
+        
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          const user = result.user;
+          if (user.email?.trim().toLowerCase() === 'faiqashahzad269@gmail.com') {
+            setIsAuthenticated(true);
+            localStorage.setItem('is_admin_authenticated', 'true');
+            localStorage.setItem('admin_email', 'faiqashahzad269@gmail.com');
+            localStorage.setItem('admin_login_time', Date.now().toString());
+          } else {
+            setLoginError('Access Denied. Only the registered creator can access this Admin Panel.');
+            await auth.signOut();
+          }
+        }
+      } catch (err: any) {
+        console.error('Redirect result handle error:', err);
+        if (err.code && err.code !== 'auth/api-key-not-valid' && err.code !== 'auth/no-current-user') {
+          setLoginError('Google Sign-In failed: ' + (err.message || err.code));
+        }
+      }
+    };
+
+    handleRedirectResult();
+  }, []);
+
+  // Listen to Auth State changes to automatically authenticate admin if logged in (perfect for mobile/tab switches)
+  useEffect(() => {
+    let unsubscribe = () => {};
+    const setupAuthListener = async () => {
+      try {
+        const { onAuthStateChanged } = await import('firebase/auth');
+        const { auth } = await import('../lib/firebase');
+        unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user && user.email?.trim().toLowerCase() === 'faiqashahzad269@gmail.com') {
+            setIsAuthenticated(true);
+            localStorage.setItem('is_admin_authenticated', 'true');
+            localStorage.setItem('admin_email', 'faiqashahzad269@gmail.com');
+            localStorage.setItem('admin_login_time', Date.now().toString());
+          }
+        });
+      } catch (err) {
+        console.error('Error setting up admin auth listener:', err);
+      }
+    };
+    setupAuthListener();
+    return () => unsubscribe();
+  }, []);
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -66,7 +120,7 @@ export const AdminView: React.FC = () => {
     try {
       const emailFormatted = loginEmail.trim().toLowerCase();
       if (emailFormatted !== 'faiqashahzad269@gmail.com') {
-        setLoginError('Access Denied. Only the registered creator (faiqashahzad269@gmail.com) can access this Admin Panel.');
+        setLoginError('Access Denied. Only the registered creator can access this Admin Panel.');
         setIsVerifying(false);
         return;
       }
@@ -127,19 +181,41 @@ export const AdminView: React.FC = () => {
     setLoginError('');
     setIsVerifying(true);
     try {
-      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
+      const { signInWithPopup, signInWithRedirect, GoogleAuthProvider } = await import('firebase/auth');
       const { auth } = await import('../lib/firebase');
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      if (user && user.email?.trim().toLowerCase() === 'faiqashahzad269@gmail.com') {
-        setIsAuthenticated(true);
-        localStorage.setItem('is_admin_authenticated', 'true');
-        localStorage.setItem('admin_email', 'faiqashahzad269@gmail.com');
-        localStorage.setItem('admin_login_time', Date.now().toString());
+      
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isIframe = window.self !== window.top;
+
+      if (isMobile || isIframe) {
+        // Safe redirect login for mobile / iframe preview contexts where popups are blocked/unsupported
+        await signInWithRedirect(auth, provider);
       } else {
-        setLoginError('Access Denied. Only the registered creator (faiqashahzad269@gmail.com) can access this Admin Panel.');
-        await auth.signOut();
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+          if (user && user.email?.trim().toLowerCase() === 'faiqashahzad269@gmail.com') {
+            setIsAuthenticated(true);
+            localStorage.setItem('is_admin_authenticated', 'true');
+            localStorage.setItem('admin_email', 'faiqashahzad269@gmail.com');
+            localStorage.setItem('admin_login_time', Date.now().toString());
+          } else {
+            setLoginError('Access Denied. Only the registered creator can access this Admin Panel.');
+            await auth.signOut();
+          }
+        } catch (popupErr: any) {
+          console.warn('Google Sign-In popup failed or was blocked, trying redirect instead:', popupErr);
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+            await signInWithRedirect(auth, provider);
+          } else {
+            throw popupErr;
+          }
+        }
       }
     } catch (err) {
       console.error(err);
@@ -502,7 +578,7 @@ export const AdminView: React.FC = () => {
             <h2 className="mt-4 font-serif text-3xl font-light tracking-wide text-brand-black font-light">Boutique Administrator</h2>
             <div className="mt-4 h-[1px] w-20 bg-brand-gold mx-auto" />
             <p className="mt-4 text-xs text-brand-gray max-w-xs mx-auto leading-relaxed">
-              Please authenticate using your registered email and secure passkey. Only Faiqa Shahzad can access this panel.
+              Please authenticate using your registered email and secure passkey. Only authorized administrators can access this panel.
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit}>
@@ -518,7 +594,7 @@ export const AdminView: React.FC = () => {
                   type="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="faiqashahzad269@gmail.com"
+                  placeholder="creator@example.com"
                   className="w-full bg-brand-white border border-brand-cream px-3 py-2.5 text-xs text-brand-black focus:border-brand-gold focus:outline-none rounded-none"
                   required
                 />

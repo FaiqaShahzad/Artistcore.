@@ -23,7 +23,15 @@ export const PaintingsView: React.FC = () => {
   const handleWhatsAppInquiry = (painting: Painting) => {
     const text = `Assalam-o-Alaikum Artistcore! I am fascinated by your fine art masterpiece:%0D%0A%0D%0A*${painting.title}*%0D%0APrice: PKR ${painting.price.toLocaleString()}%0D%0AMedium: ${painting.medium}%0D%0ASize: ${painting.size}%0D%0A%0D%0APlease let me know if this piece is currently available or if you can paint a custom commission with similar strokes. JazakAllah!`;
     const whatsappNumber = contactInfo.whatsapp.replace(/[^0-9]/g, '');
-    window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
+    const url = `https://wa.me/${whatsappNumber}?text=${text}`;
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

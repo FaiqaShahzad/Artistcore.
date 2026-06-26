@@ -15,6 +15,7 @@ service cloud.firestore {
     // Restricts write actions strictly to the verified account of Faiqa Shahzad
     function isAdmin() {
       return isSignedIn() && 
+             request.auth.token.email != null &&
              request.auth.token.email == "faiqashahzad269@gmail.com";
     }
 
